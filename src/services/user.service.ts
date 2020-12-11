@@ -2,8 +2,11 @@ import {UserService} from '@loopback/authentication';
 import {inject} from '@loopback/core';
 import {repository} from '@loopback/repository';
 import {HttpErrors} from '@loopback/rest';
+import {toJSON} from '@loopback/testlab';
+import {pick} from 'lodash';
 import {User} from '../models';
 import {Credentials, UserRepository} from '../repositories/user.repository';
+import {MyUserProfile} from '../types';
 import {BcryptHasher} from './hash.password';
 
 export class MyUserService implements UserService<User,Credentials>{
@@ -39,6 +42,12 @@ export class MyUserService implements UserService<User,Credentials>{
     if(user.lastname){
       userName = user.firstname?`${user.firstname} ${user.lastname}`:user.lastname
     }
-    return {id:`${user.id}`,name:userName}
+    const currentUser :MyUserProfile = pick(toJSON(user),[
+      'id',
+      'permissions'
+    ]) as MyUserProfile;
+currentUser.name = userName
+return currentUser
+
   }
 }

@@ -77,8 +77,8 @@ export class UserController {
     const user = await this.userService.verifyCredentials(credentials)
     const profile = await this.userService.convertToUserProfile(user)
 
-   console.log(user)
-   console.log(profile)
+  //  console.log(user)
+  //  console.log(profile)
 
    //generate a json web token
      const token =await  this.jwtService.generateToken(profile)
