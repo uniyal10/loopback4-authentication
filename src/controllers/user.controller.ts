@@ -1,10 +1,11 @@
 // Uncomment these imports to begin using these cool features!
 
-import {authenticate} from '@loopback/authentication';
+import {authenticate, AuthenticationBindings} from '@loopback/authentication';
 import {inject} from '@loopback/core';
 import {repository} from '@loopback/repository';
 import {get, getJsonSchema, post, requestBody} from '@loopback/rest';
 import * as _ from 'lodash';
+import {PermissionKeys} from '../authorization/permission-keys';
 import {User} from '../models';
 import {Credentials, UserRepository} from '../repositories';
 import {BcryptHasher} from '../services/hash.password';
@@ -38,6 +39,11 @@ export class UserController {
   })
   async signup(@requestBody() userData:User){
     validateCredentials(_.pick(userData,['email','password']))
+
+
+    //set permissions
+    userData.permissions = [PermissionKeys.AccessAuthFeature]
+
 
     //encrypt
     userData.password =await this.hasher.hashPassword(userData.password)
@@ -81,8 +87,11 @@ export class UserController {
 
   @get('/user/me')
   @authenticate('jwt')
-async me():Promise<any>{
-  return Promise.resolve({id:'1',name:'kapil uniyal'})
+async me(
+  @inject(AuthenticationBindings.CURRENT_USER)
+  currentUser:any
+):Promise<any>{
+  return Promise.resolve(currentUser)
 }
 
 
